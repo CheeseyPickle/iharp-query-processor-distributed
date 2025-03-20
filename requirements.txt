@@ -7,3 +7,6 @@ pandas
 numpy
 plotly
 cdsapi
+
+grpcio
+grpcio-tools
