@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+service DBNode {
+    rpc GetRaster(RasterRequest) returns (stream RasterResponse) {}
+}
+
+message RasterRequest {
+    string variable = 1;
+    string start_datetime = 2;
+    string end_datetime = 3;
+    string temporal_resolution = 4;
+    float min_lat = 5;
+    float max_lat = 6; 
+    float min_lon = 7;
+    float max_lon = 8;
+    float spatial_resolution = 9;
+    string aggregation = 10;
+    string file = 11;
+}
+
+message RasterResponse {
+    float longitude = 1;
+    float latitude = 2;
+    int64 time = 3;
+    double variable = 4;
+}
