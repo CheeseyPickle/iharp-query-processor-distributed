@@ -1,0 +1,11 @@
+variable,start_datetime,end_datetime,max_lat,min_lat,max_lon,min_lon,temporal_resolution,spatial_resolution,aggregation,file_path,host
+2m_temperature,2014-01-01 00:00,2014-12-31 23:00,90,-90,180,-180,hour,0.25,none,/data/2m_temperature-2014.nc,cs-u-spatial-516.cs.umn.edu
+2m_temperature,2015-01-01 00:00,2015-12-31 23:00,90,-90,180,-180,hour,0.25,none,/data/2m_temperature-2015.nc,cs-u-spatial-516.cs.umn.edu
+2m_temperature,2016-01-01 00:00,2016-12-31 23:00,90,-90,180,-180,hour,0.25,none,/data/2m_temperature-2016.nc,cs-u-spatial-516.cs.umn.edu
+2m_temperature,2017-01-01 00:00,2017-12-31 23:00,90,-90,180,-180,hour,0.25,none,/data/2m_temperature-2017.nc,cs-u-spatial-516.cs.umn.edu
+2m_temperature,2018-01-01 00:00,2018-12-31 23:00,90,-90,180,-180,hour,0.25,none,/data/2m_temperature-2018.nc,cs-u-spatial-516.cs.umn.edu
+2m_temperature,2019-01-01 00:00,2019-12-31 23:00,90,-90,180,-180,hour,0.25,none,/data/2m_temperature-2019.nc,cs-u-spatial-516.cs.umn.edu
+2m_temperature,2020-01-01 00:00,2020-12-31 23:00,90,-90,180,-180,hour,0.25,none,/data/2m_temperature-2020.nc,cs-u-spatial-515.cs.umn.edu
+2m_temperature,2021-01-01 00:00,2021-12-31 23:00,90,-90,180,-180,hour,0.25,none,/data/2m_temperature-2021.nc,cs-u-spatial-515.cs.umn.edu
+2m_temperature,2022-01-01 00:00,2022-12-31 23:00,90,-90,180,-180,hour,0.25,none,/data/2m_temperature-2022.nc,cs-u-spatial-515.cs.umn.edu
+2m_temperature,2023-01-01 00:00,2023-12-31 23:00,90,-90,180,-180,hour,0.25,none,/data/2m_temperature-2023.nc,cs-u-spatial-515.cs.umn.edu
