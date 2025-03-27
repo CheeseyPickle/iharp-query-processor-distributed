@@ -59,7 +59,10 @@ class GetRasterExecutor(QueryExecutor):
         )
         assert leftover is None, "Should not have leftover in experiment"
 
-        local_files = df_overlap["file_path"].tolist()
+        file_paths = df_overlap["file_path"].tolist()
+        file_hosts = df_overlap["host"].tolist()
+        local_files = list(zip(file_paths, file_hosts))
+
         api_calls = []
         if leftover is not None:
             leftover_min_lat = math.floor(leftover.latitude.min().item())
