@@ -57,7 +57,11 @@ def serve(port):
 
 if __name__ == "__main__":
     logging.basicConfig()
-    if len(sys.argv) < 2:
+    if len(sys.argv) > 2:
         print("Usage: python dbnode_server.py [Port Number]")
-    port = sys.argv[1]
+    elif len(sys.argv) == 2:
+        port = sys.argv[1]
+    else:
+        # TODO: Read this from a TOML file probably?
+        port = "50051"
     serve(port)
