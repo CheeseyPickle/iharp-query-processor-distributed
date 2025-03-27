@@ -4,6 +4,10 @@ import cdsapi
 import pandas as pd
 import xarray as xr
 
+import grpc
+import iharp_query_processor_pb2
+import iharp_query_processor_pb2_grpc
+
 from .query_executor import QueryExecutor
 from .utils.const import time_resolution_to_freq
 
@@ -113,7 +117,7 @@ class GetRasterExecutor(QueryExecutor):
         # 1. check metadata
         file_list, api = self._check_metadata()
 
-        # 2. call apis
+        # 2. call nodes
         download_file_list = []
         if api:
             c = cdsapi.Client()
@@ -124,53 +128,30 @@ class GetRasterExecutor(QueryExecutor):
 
         # 3. execute query
         ds_list = []
-        # 3.1 read downloaded files
-        for file in download_file_list:
-            ds = xr.open_dataset(file, engine="netcdf4")
-            # drop unused variables
-            # if "number" in ds.coords:
-            #     ds = ds.drop_vars("number")
-            # if "expver" in ds.coords:
-            #     ds = ds.drop_vars("expver")
-            ds = ds.sel(
-                time=slice(self.start_datetime, self.end_datetime),
-                latitude=slice(self.max_lat, self.min_lat),
-                longitude=slice(self.min_lon, self.max_lon),
-            )
-            # temporal resample
-            if self.temporal_resolution != "hour":
-                resampled = ds.resample(time=time_resolution_to_freq(self.temporal_resolution))
-                if self.aggregation == "mean":
-                    ds = resampled.mean()
-                elif self.aggregation == "max":
-                    ds = resampled.max()
-                elif self.aggregation == "min":
-                    ds = resampled.min()
-                else:
-                    raise ValueError("Invalid temporal_aggregation")
-            # spatial resample
-            if self.spatial_resolution > 0.25:
-                c_f = int(self.spatial_resolution / 0.25)
-                coarsened = ds.coarsen(latitude=c_f, longitude=c_f, boundary="trim")
-                if self.aggregation == "mean":
-                    ds = coarsened.mean()
-                elif self.aggregation == "max":
-                    ds = coarsened.max()
-                elif self.aggregation == "min":
-                    ds = coarsened.min()
-                else:
-                    raise ValueError("Invalid spatial_aggregation")
-            ds_list.append(ds)
+        # 3.1 Call nodes and get input 
+        # TODO:Parallelize this, somehow
+        for file, host in file_list:
+            # TODO: make TOML file to also store port nums
+            with grpc.insecure_channel(f'{host}:50051') as channel:
+                stub = iharp_query_processor_pb2_grpc.DBNodeStub(channel)
+                ds_iterator = stub.GetRaster(iharp_query_processor_pb2.RasterRequest(
+                    variable = self.variable,
+                    start_datetime = self.start_datetime,
+                    end_datetime = self.end_datetime,
+                    temporal_resolution = self.temporal_resolution,
+                    min_lat = self.min_lat,
+                    max_lat = self.max_lat,
+                    min_lon = self.min_lon,
+                    max_lon = self.max_lon,
+                    spatial_resolution = self.spatial_resolution,
+                    aggregation = self.aggregation,
+                    file = file
+                ))
 
-        # 3.2 read local files
-        ds_list = []
-        for file in file_list:
-            ds = xr.open_dataset(file, engine="netcdf4").sel(
-                time=slice(self.start_datetime, self.end_datetime),
-                latitude=slice(self.max_lat, self.min_lat),
-                longitude=slice(self.min_lon, self.max_lon),
-            )
-            ds_list.append(ds)
+                # TODO: Iterate over iterator, adding each result to ds
+                ds = xr.Dataset()
+                ds_list.append(ds)
+
 
         # 3.3 assemble result
         # ds = xr.concat([i.chunk() for i in ds_list], dim="time")
