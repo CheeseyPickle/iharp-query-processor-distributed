@@ -44,6 +44,7 @@ class DBNode(iharp_query_processor_pb2_grpc.DBNodeServicer):
 
         # Dump into pickle
         # As long as pickle file is less than ~4.29 GB (2^32 bytes), we can send it
+        ds.load()
         pickled_arr = pickle.dumps(ds) 
         return iharp_query_processor_pb2.RasterResponse(pickled_arr=pickled_arr)
 
