@@ -2,6 +2,7 @@ from concurrent import futures
 import logging
 
 import sys
+import pickle
 import grpc
 import iharp_query_processor_pb2
 import iharp_query_processor_pb2_grpc
@@ -41,8 +42,10 @@ class DBNode(iharp_query_processor_pb2_grpc.DBNodeServicer):
             else:
                 raise ValueError("Invalid spatial_aggregation")
 
-        # Loop through xArray and send somehow
-        yield iharp_query_processor_pb2.RasterResponse()
+        # Dump into pickle
+        # As long as pickle file is less than ~4.29 GB (2^32 bytes), we can send it
+        pickled_arr = pickle.dumps(ds) 
+        return iharp_query_processor_pb2.RasterResponse(pickled_arr=pickled_arr)
 
 
 

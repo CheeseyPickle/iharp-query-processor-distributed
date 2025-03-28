@@ -34,7 +34,7 @@ class DBNodeStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.GetRaster = channel.unary_stream(
+        self.GetRaster = channel.unary_unary(
                 '/DBNode/GetRaster',
                 request_serializer=iharp__query__processor__pb2.RasterRequest.SerializeToString,
                 response_deserializer=iharp__query__processor__pb2.RasterResponse.FromString,
@@ -53,7 +53,7 @@ class DBNodeServicer(object):
 
 def add_DBNodeServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'GetRaster': grpc.unary_stream_rpc_method_handler(
+            'GetRaster': grpc.unary_unary_rpc_method_handler(
                     servicer.GetRaster,
                     request_deserializer=iharp__query__processor__pb2.RasterRequest.FromString,
                     response_serializer=iharp__query__processor__pb2.RasterResponse.SerializeToString,
@@ -80,7 +80,7 @@ class DBNode(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(
+        return grpc.experimental.unary_unary(
             request,
             target,
             '/DBNode/GetRaster',

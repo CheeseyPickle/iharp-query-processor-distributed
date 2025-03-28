@@ -31,13 +31,7 @@ class RasterRequest(_message.Message):
     def __init__(self, variable: _Optional[str] = ..., start_datetime: _Optional[str] = ..., end_datetime: _Optional[str] = ..., temporal_resolution: _Optional[str] = ..., min_lat: _Optional[float] = ..., max_lat: _Optional[float] = ..., min_lon: _Optional[float] = ..., max_lon: _Optional[float] = ..., spatial_resolution: _Optional[float] = ..., aggregation: _Optional[str] = ..., file: _Optional[str] = ...) -> None: ...
 
 class RasterResponse(_message.Message):
-    __slots__ = ("longitude", "latitude", "time", "variable")
-    LONGITUDE_FIELD_NUMBER: _ClassVar[int]
-    LATITUDE_FIELD_NUMBER: _ClassVar[int]
-    TIME_FIELD_NUMBER: _ClassVar[int]
-    VARIABLE_FIELD_NUMBER: _ClassVar[int]
-    longitude: float
-    latitude: float
-    time: int
-    variable: float
-    def __init__(self, longitude: _Optional[float] = ..., latitude: _Optional[float] = ..., time: _Optional[int] = ..., variable: _Optional[float] = ...) -> None: ...
+    __slots__ = ("pickled_arr",)
+    PICKLED_ARR_FIELD_NUMBER: _ClassVar[int]
+    pickled_arr: bytes
+    def __init__(self, pickled_arr: _Optional[bytes] = ...) -> None: ...

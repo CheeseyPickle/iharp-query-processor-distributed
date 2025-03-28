@@ -4,6 +4,7 @@ import cdsapi
 import pandas as pd
 import xarray as xr
 
+import pickle
 import grpc
 import iharp_query_processor_pb2
 import iharp_query_processor_pb2_grpc
@@ -174,7 +175,7 @@ class GetRasterExecutor(QueryExecutor):
             # TODO: make TOML file to also store port nums
             with grpc.insecure_channel(f'{host}:50051') as channel:
                 stub = iharp_query_processor_pb2_grpc.DBNodeStub(channel)
-                ds_iterator = stub.GetRaster(iharp_query_processor_pb2.RasterRequest(
+                response = stub.GetRaster(iharp_query_processor_pb2.RasterRequest(
                     variable = self.variable,
                     start_datetime = self.start_datetime,
                     end_datetime = self.end_datetime,
@@ -188,8 +189,7 @@ class GetRasterExecutor(QueryExecutor):
                     file = file
                 ))
 
-                # TODO: Iterate over iterator, adding each result to ds
-                ds = xr.Dataset()
+                ds = pickle.loads(response.pickled_arr)
                 ds_list.append(ds)
 
 

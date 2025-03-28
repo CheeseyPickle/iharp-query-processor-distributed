@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 service DBNode {
-    rpc GetRaster(RasterRequest) returns (stream RasterResponse) {}
+    rpc GetRaster(RasterRequest) returns (RasterResponse) {}
 }
 
 message RasterRequest {
@@ -19,8 +19,6 @@ message RasterRequest {
 }
 
 message RasterResponse {
-    float longitude = 1;
-    float latitude = 2;
-    int64 time = 3;
-    double variable = 4;
+    // Represents a pickled xarray
+    bytes pickled_arr = 1;
 }
