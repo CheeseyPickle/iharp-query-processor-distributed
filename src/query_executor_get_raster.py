@@ -171,9 +171,15 @@ class GetRasterExecutor(QueryExecutor):
 
         # 3.2 Call nodes and get input 
         # TODO:Parallelize this, somehow
+        MAX_MESSAGE_LENGTH = 2147483647
         for file, host in file_list:
             # TODO: make TOML file to also store port nums
-            with grpc.insecure_channel(f'{host}:50051') as channel:
+            with grpc.insecure_channel(
+                f'{host}:50051',
+                options=[
+                    ('grpc.max_send_message_length', MAX_MESSAGE_LENGTH),
+                    ('grpc.max_receive_message_length', MAX_MESSAGE_LENGTH),
+                ]) as channel:
                 stub = iharp_query_processor_pb2_grpc.DBNodeStub(channel)
                 response = stub.GetRaster(iharp_query_processor_pb2.RasterRequest(
                     variable = self.variable,
