@@ -9,9 +9,12 @@ import grpc
 import iharp_query_processor_pb2
 import iharp_query_processor_pb2_grpc
 
+import threading
+
 from .query_executor import QueryExecutor
 from .utils.const import time_resolution_to_freq
 
+MAX_MESSAGE_LENGTH = 2147483647
 
 class GetRasterExecutor(QueryExecutor):
     def __init__(
@@ -116,6 +119,33 @@ class GetRasterExecutor(QueryExecutor):
     def _gen_download_file_name(self):
         dt = datetime.now().strftime("%Y%m%d_%H%M%S")
         return f"download_{dt}.nc"
+    
+    def query_node(self, file, host, ds_list, lock):
+        # TODO: make TOML file to also store port nums
+        with grpc.insecure_channel(
+                f'{host}:50051',
+                options=[
+                    ('grpc.max_send_message_length', MAX_MESSAGE_LENGTH),
+                    ('grpc.max_receive_message_length', MAX_MESSAGE_LENGTH),
+                ]) as channel:
+            stub = iharp_query_processor_pb2_grpc.DBNodeStub(channel)
+            response = stub.GetRaster(iharp_query_processor_pb2.RasterRequest(
+                variable = self.variable,
+                start_datetime = self.start_datetime,
+                end_datetime = self.end_datetime,
+                temporal_resolution = self.temporal_resolution,
+                min_lat = self.min_lat,
+                max_lat = self.max_lat,
+                min_lon = self.min_lon,
+                max_lon = self.max_lon,
+                spatial_resolution = self.spatial_resolution,
+                aggregation = self.aggregation,
+                file = file
+            ))
+
+        ds = pickle.loads(response.pickled_arr)
+        with lock:
+            ds_list.append(ds)
 
     def execute(self):
         # 1. check metadata
@@ -170,33 +200,15 @@ class GetRasterExecutor(QueryExecutor):
             ds_list.append(ds)
 
         # 3.2 Call nodes and get input 
-        # TODO:Parallelize this, somehow
-        MAX_MESSAGE_LENGTH = 2147483647
+        query_threads : list[threading.Thread] = []
+        lock = threading.Lock()
         for file, host in file_list:
-            # TODO: make TOML file to also store port nums
-            with grpc.insecure_channel(
-                f'{host}:50051',
-                options=[
-                    ('grpc.max_send_message_length', MAX_MESSAGE_LENGTH),
-                    ('grpc.max_receive_message_length', MAX_MESSAGE_LENGTH),
-                ]) as channel:
-                stub = iharp_query_processor_pb2_grpc.DBNodeStub(channel)
-                response = stub.GetRaster(iharp_query_processor_pb2.RasterRequest(
-                    variable = self.variable,
-                    start_datetime = self.start_datetime,
-                    end_datetime = self.end_datetime,
-                    temporal_resolution = self.temporal_resolution,
-                    min_lat = self.min_lat,
-                    max_lat = self.max_lat,
-                    min_lon = self.min_lon,
-                    max_lon = self.max_lon,
-                    spatial_resolution = self.spatial_resolution,
-                    aggregation = self.aggregation,
-                    file = file
-                ))
-
-                ds = pickle.loads(response.pickled_arr)
-                ds_list.append(ds)
+            thread = threading.Thread(target=self.query_node, args=[file, host, ds_list, lock])
+            query_threads.append(thread)
+            thread.start()
+        
+        for thread in query_threads:
+            thread.join()
 
 
         # 3.3 assemble result
