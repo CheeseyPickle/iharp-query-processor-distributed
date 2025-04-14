@@ -12,6 +12,7 @@ from .utils.const import time_resolution_to_freq
 
 class DBNode(iharp_query_processor_pb2_grpc.DBNodeServicer):
     def GetRaster(self, request, context):
+        print("Raster Query Received!")
         ds = xr.open_dataset(request.file, engine="netcdf4").sel(
                 time=slice(request.start_datetime, request.end_datetime),
                 latitude=slice(request.max_lat, request.min_lat),
@@ -47,6 +48,7 @@ class DBNode(iharp_query_processor_pb2_grpc.DBNodeServicer):
         ds.load()
         pickled_arr = pickle.dumps(ds)
         ds.close()
+        print("Sending Response to Raster Query!")
         return iharp_query_processor_pb2.RasterResponse(pickled_arr=pickled_arr)
 
 
