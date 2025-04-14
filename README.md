@@ -8,4 +8,4 @@ Run `cd src` and `python -m grpc_tools.protoc -I../protos --python_out=. --pyi_o
 
 ## Communication
 
-Communication between the head node and the database nodes is done via gRPC. The data is pickled and sent over the network. For this to work the database nodes and the head node all have to run the same version of Python (or at least versions where pickling is the same between them).
+Communication between the head node and the database nodes is done via gRPC. The data is pickled and sent over the network. For this to work the database nodes and the head node all have to run the same version of Python (or at least versions where pickling is the same between them). As of Python 3.13, this means that we want python versions to all be >= 3.8 (or 3.4 if you're willing to look into pickling more and modify the code).
