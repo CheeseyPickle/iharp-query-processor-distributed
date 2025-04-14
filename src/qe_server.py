@@ -8,7 +8,7 @@ import iharp_query_processor_pb2
 import iharp_query_processor_pb2_grpc
 
 import xarray as xr
-from .utils.const import time_resolution_to_freq
+from utils.const import time_resolution_to_freq
 
 class DBNode(iharp_query_processor_pb2_grpc.DBNodeServicer):
     def GetRaster(self, request, context):

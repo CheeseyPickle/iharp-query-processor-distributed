@@ -11,8 +11,8 @@ import iharp_query_processor_pb2_grpc
 
 import threading
 
-from .query_executor import QueryExecutor
-from .utils.const import time_resolution_to_freq
+from query_executor import QueryExecutor
+from utils.const import time_resolution_to_freq
 
 MAX_MESSAGE_LENGTH = 2147483647
 
