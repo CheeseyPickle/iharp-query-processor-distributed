@@ -210,6 +210,7 @@ class GetRasterExecutor(QueryExecutor):
         for thread in query_threads:
             thread.join()
 
+        print("Files received!")
 
         # 3.3 assemble result
         # ds = xr.concat([i.chunk() for i in ds_list], dim="time")
